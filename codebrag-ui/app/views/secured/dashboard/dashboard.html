@@ -1,0 +1,26 @@
+<div id="followups-tab-content" class="row" ng-controller="DashboardCtrl" auto-fit-height>
+    <div class="commits items-list small-3 large-3 columns">
+        <div class="items-container">
+
+            <div class="followups-container" ng-repeat="commit in commits">
+                <div class="info-box">
+                    <div class="commit-name" ng-bind-html-unsafe="commit.message"></div>
+                    <div class="info-line"><span class="username">{{commit.authorName}}</span><span class="time">{{commit.date | relativeDate}} in {{ commit.repoName }}</span></div>
+                </div>
+                <div class="followup-container" ng-repeat="reaction in commit.reactions" ng-controller="DashboardListItemCtrl" ng-click="openReactionDetails(reaction)" 
+                     mark-current="reaction.id" state-param-name="id">
+                    <div class="authored-box">
+                    	<div class="info-line"><span class="username">{{reaction.authorName}}</span><span class="time">{{reaction.time | relativeDate}}</span></div>
+                        <div class="author-box"><user-avatar url="reaction.authorAvatarUrl"></user-avatar></div>
+                        <div class="info-box">
+                            <div class="comment"><reaction-message-summary reaction="reaction"></reaction-message-summary></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="diff large-9 columns" ui-view>
+    </div>
+</div>

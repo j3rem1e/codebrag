@@ -7,7 +7,7 @@ angular.module('codebrag.common.directives')
 
         return {
             restrict: 'E',
-            template: '<span>{{ reactionMessage }}</span>',
+            template: '<span title="{{ reactionTooltipMessage }}">{{ reactionMessage }}</span>',
             replace: true,
             scope: {
                 reaction: '='
@@ -17,8 +17,10 @@ angular.module('codebrag.common.directives')
                 if (reaction.message) {
                     var formattedMessage = marked(reaction.message);
                     scope.reactionMessage = $filter('truncate')(removeAllTags(formattedMessage), 50);
+                    scope.reactionTooltipMessage = removeAllTags(formattedMessage);
                 } else {
                     scope.reactionMessage = reaction.reactionAuthor + ' liked your code.';
+                    scope.reactionTooltipMessage = '';
                 }
             }
         };

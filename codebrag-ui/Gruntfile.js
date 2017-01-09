@@ -98,7 +98,7 @@ module.exports = function (grunt) {
             }
         },
 
-
+/*
         karma: {
             options: {
                 configFile: 'karma-config.js'
@@ -116,7 +116,7 @@ module.exports = function (grunt) {
                 singleRun: true
             }
         },
-
+*/
         useminPrepare: {
             html: 'app/index.html',
             options: {
@@ -253,7 +253,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('build', [
         'clean:dist',
-        'test:teamcity',
+//        'test:teamcity',
         'stylus:compile',
         'html2js',
         'copy:assets',

@@ -14,7 +14,12 @@ local.conf*
 .instanceId
 repos/
 data/
+nohup.out
 
+#eclipse
+.classpath
+.project
+.settings/
 
 # for codebrag-ui
 codebrag-ui/node_modules

@@ -19,6 +19,8 @@ import com.softwaremill.codebrag.dao.branchsnapshot.SQLBranchStateDAO
 import com.softwaremill.codebrag.dao.reviewedcommits.SQLReviewedCommitsDAO
 import com.softwaremill.codebrag.dao.repo.SQLUserRepoDetailsDAO
 import com.softwaremill.codebrag.dao.branch.SQLWatchedBranchesDao
+import com.softwaremill.codebrag.dao.finders.dashboard.DashboardFinder
+import com.softwaremill.codebrag.dao.finders.dashboard.SQLDashboardFinder
 
 trait Daos {
   lazy val userDao = new SQLUserDAO(sqlDatabase)
@@ -44,7 +46,7 @@ trait Daos {
   lazy val followupFinder = new SQLFollowupFinder(sqlDatabase, userDao)
   lazy val reactionFinder = new ReactionFinder(userDao, commentDao, likeDao)
   lazy val statsFinder = new StatsEventsFinder(eventDao)
-
+  lazy val dashboardFinder = new SQLDashboardFinder(sqlDatabase, userDao)
   def sqlDatabase: SQLDatabase
   def clock: Clock
 }
