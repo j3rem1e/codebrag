@@ -55,7 +55,11 @@ angular.module('codebrag.common.directives')
                 }
 
                 setTimeout(scrollIfElementPresent, pollingInterval);
-                scope.$on(events.scrollOnly, function() {
+                scope.$on(events.scrollOnly, function(event, newScrollId) {
+                	if (newScrollId !== undefined) {
+                		scrollToId = newScrollId;
+                		timeoutsCount = 0;
+                	}
                     scrollIfElementPresent();
                 });
             }

@@ -184,7 +184,7 @@ angular.module('codebrag.dashboard')
             templateUrl: 'views/secured/dashboard/emptyDashboard.html'
         })
         .state('dashboard.details', {
-            url: '/{followupId}/comments/{commentId}',
+            url: '/{commitId}/comments/{commentId}',
             templateUrl: 'views/secured/dashboard/dashboardDetails.html'
         });
 });

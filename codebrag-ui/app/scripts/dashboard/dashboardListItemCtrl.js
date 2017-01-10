@@ -4,24 +4,14 @@ angular.module('codebrag.dashboard')
 
         $scope.openReactionDetails = function (reaction) {
             if(_thisReactionOpened(reaction)) {
-                $rootScope.$broadcast(events.scrollOnly);
+                $rootScope.$broadcast(events.scrollToComment, reaction.id);
             } else {
-                $state.transitionTo('dashboard.details', {commentId: reaction.id});
+                $state.transitionTo('dashboard.details', {commentId: reaction.id, commitId: reaction.commitId });
             }
-        };
-
-        $scope.dismiss = function (followup) {
-        	dashboardService.removeAndGetNext(followup.followupId).then(function(nextFollowup) {
-                if(nextFollowup) {
-                    $state.transitionTo('dashboard.details', {followupId: nextFollowup.followupId, commentId: nextFollowup.lastReaction.reactionId});
-                } else {
-                    $state.transitionTo('dashboard.list');
-                }
-            });
         };
  
         function _thisReactionOpened(reaction) {
-            return $state.current.name === 'dashboard.details' && $state.params.commentId === reaction.id;
+            return $state.current.name === 'dashboard.details' && $state.params.commitId === reaction.commitId;
         }
 
 

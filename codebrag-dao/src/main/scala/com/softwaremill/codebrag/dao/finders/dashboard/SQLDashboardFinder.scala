@@ -13,9 +13,11 @@ import com.softwaremill.codebrag.domain.UserReaction
 import com.softwaremill.codebrag.domain.Like
 import com.softwaremill.codebrag.dao.finders.views.LikeView
 import com.softwaremill.codebrag.dao.finders.views.CommentView
+import com.softwaremill.codebrag.dao.followup.SQLFollowupSchema
+import com.softwaremill.codebrag.dao.finders.views.DashboardCommentView
 
 class SQLDashboardFinder(val database: SQLDatabase, userDAO: UserDAO) extends DashboardFinder 
-  with SQLReactionSchema with SQLCommitInfoSchema {
+  with SQLReactionSchema with SQLCommitInfoSchema with SQLFollowupSchema {
   
   import database.driver.simple._
   import database._
@@ -28,10 +30,12 @@ class SQLDashboardFinder(val database: SQLDatabase, userDAO: UserDAO) extends Da
     var orderedCommentsByCommit = commentsByCommit.toSeq.sortWith(_._2.head.postingTime.getMillis() > _._2.head.postingTime.getMillis())
 
     val commits = commitInfos.filter(_.id inSet commentsByCommit.keys).list().map(commit => commit.id -> commit).toMap
+    val relatedFollowups = followups.filter(_.lastReactionId inSet allcomments.map(_.id)).list().groupBy(_.lastReactionId)
     
     DashboardView(orderedCommentsByCommit.map { 
       case (mcommitId, mcomment) => 
         val commitInfo = commits.get(mcommitId).getOrElse(throw new IllegalStateException(s"Could not find commit mcommitId"))
+        
         DashboardCommitView(
           commitInfo.id.toString,
           commitInfo.sha,
@@ -43,16 +47,15 @@ class SQLDashboardFinder(val database: SQLDatabase, userDAO: UserDAO) extends Da
             
             val user = userDetails.getOrElse(c.authorId, throw new IllegalStateException(s"Could not find user $c.authorId"));
             
-            CommentView(
+            DashboardCommentView(
               c.id.toString,
               user.name,
               c.authorId.toString, 
               c.message, 
               c.postingTime,
-              user.avatarUrl
-              ) 
-          }
-          )
+              user.avatarUrl,
+              relatedFollowups.contains(c.id)) 
+          })
          ) 
       } toList)
     

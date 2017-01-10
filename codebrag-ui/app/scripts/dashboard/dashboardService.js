@@ -4,25 +4,28 @@ angular.module('codebrag.dashboard')
 
         var commitsListLocal = new codebrag.dashboard.LocalListCommits();
         var listFetched = false;
+        
+        var currentRequest;
 
         function allEvents() {
-            return _httpRequest('GET').then(function(response) {
+        	currentRequest = _httpRequest('GET').then(function(response) {
             	commitsListLocal.addAll(response.data.eventCommitsView);
                 listFetched = true;
                 return commitsListLocal.collection;
             });
+        	return currentRequest;
         }
         
-        function commitsList() {
-        	if (listFetched) {
-        		return $q.when(commitsListLocal);
-        	} else {
-        		return allEvents().then(function() { return commitsListLocal });
-        	}
+        function loadEventsIfNecessary() {
+            if (currentRequest) {
+            	return currentRequest;
+            } else {
+            	return allEvents();
+            }
         }
 
         function getCommitFromCommentId(commentId) {
-        	return commitsList().then(function(commits) { return commits.getCommitFromCommentId(commentId) });
+        	return loadEventsIfNecessary().then(function() { return commitsListLocal.getCommitFromCommentId(commentId) });
         }
 
         function _httpRequest(method, config) {
@@ -54,6 +57,14 @@ codebrag.dashboard.LocalListCommits = function(collection) {
     this.addAll = function(newCollection) {
         this.collection.length = 0;
         Array.prototype.push.apply(this.collection, newCollection);
+        this.injectCommitId();
+    };
+    
+    this.injectCommitId = function() {
+    	_.each(this.collection, function(commit) {
+    		var id = commit.sha;
+    		_.each(commit.reactions, function(reaction) { reaction.commitId = id; });
+    	});
     };
     
     this.getCommitFromCommentId = function(commentId) {

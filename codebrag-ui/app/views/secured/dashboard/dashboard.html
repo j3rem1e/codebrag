@@ -4,13 +4,20 @@
 
             <div class="followups-container" ng-repeat="commit in commits">
                 <div class="info-box">
+  
                     <div class="commit-name" ng-bind-html-unsafe="commit.message"></div>
-                    <div class="info-line"><span class="username">{{commit.authorName}}</span><span class="time">{{commit.date | relativeDate}} in {{ commit.repoName }}</span></div>
+                    <div class="info-line">
+                    	<span class="username">{{commit.authorName}}</span><span class="time">{{commit.date | relativeDate}} in {{ commit.repoName }}</span>
+                    </div>
                 </div>
                 <div class="followup-container" ng-repeat="reaction in commit.reactions" ng-controller="DashboardListItemCtrl" ng-click="openReactionDetails(reaction)" 
-                     mark-current="reaction.id" state-param-name="id">
-                    <div class="authored-box">
-                    	<div class="info-line"><span class="username">{{reaction.authorName}}</span><span class="time">{{reaction.time | relativeDate}}</span></div>
+                     mark-current="reaction.id" state-param-name="commentId" ng-class="{'followup-waiting': reaction.isWaiting}">
+                    <div class="authored-box" >
+                    	<div class="info-line">
+                    		<span class="username">{{reaction.authorName}}</span>
+                    		<span class="time">{{reaction.time | relativeDate}}</span>
+                    		<span ng-show="reaction.isWaiting">&nbsp;<span class="icon-inbox"></span></span>
+                    	</div>
                         <div class="author-box"><user-avatar url="reaction.authorAvatarUrl"></user-avatar></div>
                         <div class="info-box">
                             <div class="comment"><reaction-message-summary reaction="reaction"></reaction-message-summary></div>
