@@ -31,6 +31,7 @@ import com.softwaremill.codebrag.usecases.registration.{ListRepoBranchesAfterReg
 import com.softwaremill.codebrag.usecases.user._
 import com.softwaremill.codebrag.usecases.team.{AddTeamUseCase, DeleteTeamUseCase, AddTeamMemberUseCase, DeleteTeamMemberUseCase, ModifyTeamMemberUseCase}
 import com.softwaremill.codebrag.finders.team.TeamFinder
+import com.softwaremill.codebrag.service.browser.BrowseService
 
 trait Beans extends ActorSystemSupport with Daos {
 
@@ -43,7 +44,7 @@ trait Beans extends ActorSystemSupport with Daos {
   lazy val eventBus = new AkkaEventBus(actorSystem)
   lazy val followupService = new FollowupService(followupDao, commitInfoDao, commentDao, userDao)
   lazy val likeValidator = new LikeValidator(commitInfoDao, likeDao, userDao)
-  lazy val userReactionService = new UserReactionService(commentDao, likeDao, likeValidator, eventBus)
+  lazy val userReactionService = new UserReactionService(commentDao, likeDao, likeValidator, commitInfoDao, eventBus)
   lazy val emailService = new EmailService(config)
   lazy val emailScheduler = new EmailScheduler(actorSystem, EmailScheduler.createActor(actorSystem, emailService))
   lazy val templateEngine = new TemplateEngine()
@@ -60,8 +61,12 @@ trait Beans extends ActorSystemSupport with Daos {
 
   lazy val registerService = new RegisterService(userDao, eventBus, afterUserRegistered, notificationService, followupGeneratorForPriorReactions, welcomeFollowupsGenerator)
 
-  lazy val diffWithCommentsService = new DiffWithCommentsService(allCommitsFinder, reactionFinder, new DiffService(diffLoader, repositoriesCache))
+  lazy val diffService = new DiffService(diffLoader, repositoriesCache)
+  
+  lazy val diffWithCommentsService = new DiffWithCommentsService(allCommitsFinder, reactionFinder, diffService)
 
+  lazy val browseService = new BrowseService(repositoriesCache, commitInfoDao, reactionFinder, diffService)
+  
   lazy val statsAggregator = new StatsAggregator(statsFinder, InstanceId, config, repository)
 
 

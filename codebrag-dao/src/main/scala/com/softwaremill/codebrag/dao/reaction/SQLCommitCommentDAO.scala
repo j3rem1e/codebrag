@@ -18,6 +18,13 @@ class SQLCommitCommentDAO(val database: SQLDatabase) extends CommitCommentDAO wi
       .sortBy(_.postingTime.asc)
       .list()
   }
+  
+  def findCommentsForFileInCommits(fileName: String, commitId: Seq[ObjectId]) : List[Comment] = db.withTransaction { implicit session =>
+    comments
+      .filter(c => (c.commitId inSet commitId.toSet) && c.fileName === fileName)
+      .list()
+  }
+
 
   def findAllCommentsForThread(thread: ThreadDetails): List[Comment] = db.withTransaction { implicit session =>
     comments

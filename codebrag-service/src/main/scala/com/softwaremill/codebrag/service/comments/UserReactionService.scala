@@ -7,10 +7,12 @@ import com.softwaremill.codebrag.common.{Clock, EventBus}
 import com.softwaremill.codebrag.domain.reactions.{UnlikeEvent, LikeEvent}
 import com.typesafe.scalalogging.slf4j.Logging
 import com.softwaremill.codebrag.dao.reaction.{LikeDAO, CommitCommentDAO}
+import com.softwaremill.codebrag.dao.commitinfo.CommitInfoDAO
 
 class UserReactionService(commentDao: CommitCommentDAO,
                           likeDao: LikeDAO,
                           likeValidator: LikeValidator,
+                          commitsDAO: CommitInfoDAO,
                           eventBus: EventBus)(implicit clock: Clock) extends Logging {
 
   def storeLike(like: IncomingLike): Either[String, Like] = {

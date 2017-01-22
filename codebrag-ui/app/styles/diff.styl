@@ -283,6 +283,56 @@ tr:hover .diff-line-num .button
   font-family: Consolas, "Liberation Mono", Courier, monospace;
   line-height: 1.4;
   list-style: none;
+  
+.diff-file-name
+	& a
+		text-decoration: none;
+		color: #2f0200;	
+		&:hover
+			text-decoration: underline;
+
+.diff
+  & .popover
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 4px;
+    z-index: 100;
+    background: #f7f5ef;
+    border-radius: 4px;
+    border: 1px solid #d1cbb9;
+    box-shadow(0 5px 10px rgba(0,0,0,.2));
+    & > .popover-title
+    	font-weight: normal;
+    & > .arrow
+        &, &:after
+            position: absolute;
+            display: block;
+            width: 0;
+            height: 0;
+            border-color: transparent;
+            border-style: solid;
+    & > .arrow
+        border-width: 6px;
+    & > .arrow:after
+        border-width: 6px;
+        content: "";
+    & > .arrow
+        top: 50%;
+        left: -6px;
+        margin-top: -6px;
+        border-left-width: 0;
+        border-right-color: #f7f5ef;
+        &:after
+            content: " ";
+            left: 1px;
+            border-left-width: 0;
+            border-right-color: #f7f5ef;
+            bottom: -6px;
+
+.diff-blame
+	cursor: pointer; 
+
 
 .diff-not-displayed-stat
   color: $second-body-text-color;

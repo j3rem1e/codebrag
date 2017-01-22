@@ -34,8 +34,12 @@ trait JgitDiffExtractor {
           case ChangeType.ADD => diffEntry.getNewPath
           case _ => diffEntry.getOldPath
         }
+        val renamedFilename = diffEntry.getChangeType match {
+          case ChangeType.RENAME => diffEntry.getNewPath
+          case _ => null
+        }
         val status = changeTypeToStatus(diffEntry.getChangeType)
-        CommitFileInfo(filename, status, patch)
+        CommitFileInfo(filename, status, patch, renamedFilename)
       }
     }
     finally {

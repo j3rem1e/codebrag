@@ -11,6 +11,6 @@ object Plugins extends Build {
       addSbtPlugin("com.gu" % "sbt-teamcity-test-reporting-plugin" % "1.5"),
       addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.9.0"),
       addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.2.5"),
-      addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.0.1"))
+      addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.1.0"))
   )
 }

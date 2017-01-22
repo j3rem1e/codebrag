@@ -10,7 +10,7 @@
                                     <span class="octicon octicon-repo"></span>
                                 </div>
                                 <ul class="branches-list">
-                                    <li style="white-space: nowrap" ng-repeat="repo in repos()" ng-click="selectRepo(repo)" ng-class="{'selected': isSelected(repo)}">{{repo}}</li>
+                                    <li style="white-space: nowrap" ng-repeat="repo in repos() | orderBy:'toString()'" ng-click="selectRepo(repo)" ng-class="{'selected': isSelected(repo)}">{{repo}}</li>
                                 </ul>
                             </div>
                         </div>

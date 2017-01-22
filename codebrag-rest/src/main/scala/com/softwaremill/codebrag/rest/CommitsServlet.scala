@@ -11,6 +11,7 @@ import com.softwaremill.codebrag.dao.finders.reaction.ReactionFinder
 import com.softwaremill.codebrag.finders.commits.toreview.{ToReviewCommitsViewBuilder, ToReviewCommitsFinder}
 import com.softwaremill.codebrag.finders.commits.all.AllCommitsFinder
 import com.softwaremill.codebrag.usecases.reactions._
+import com.softwaremill.codebrag.service.browser.BrowseService
 
 class CommitsServlet(val authenticator: Authenticator,
                      val toReviewCommitsViewBuilder: ToReviewCommitsViewBuilder,
@@ -24,7 +25,8 @@ class CommitsServlet(val authenticator: Authenticator,
                      val userDao: UserDAO,
                      val diffService: DiffWithCommentsService,
                      val unlikeUseCase: UnlikeUseCase,
-                     val likeUseCase: LikeUseCase)
+                     val likeUseCase: LikeUseCase,
+                     val browseService : BrowseService)
   extends JsonServletWithAuthentication with JacksonJsonSupport with CommitsEndpoint with CommentsEndpoint with LikesEndpoint {
 }
 

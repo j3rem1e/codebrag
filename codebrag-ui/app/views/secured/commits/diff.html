@@ -1,12 +1,13 @@
 <div ng-controller="DiffCtrl" id="diff-area" auto-fit-comments-width>
 
     <commit-diff data="currentCommit" compile="tfoot">
+    	
         {{#each currentCommit.diff}}
         <div class="diff-table-wrapper">
             <table class="diff-file-container" data-file-name="{{filename}}">
                 <thead class="diff-file-name">
                     <tr>
-                        <th colspan="3">{{filename}}</th>
+                        <th colspan="3"><a href="#/browser/{{../currentCommit.info.repoName}}/{{../currentCommit.info.sha}}/{{filename}}">{{filename}}</a></th>
                     </tr>
                 </thead>
                 <!-- {{#each lines}} -->

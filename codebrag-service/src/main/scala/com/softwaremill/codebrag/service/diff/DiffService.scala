@@ -64,4 +64,21 @@ class DiffService(diffLoader: DiffLoader, repoCache: RepositoriesCache) {
       }))
     result.getOrElse(Left("No such commit"))
   }
+  
+  def getDiffForFile(repoName: String, sha: String, fileName: String): List[DiffLine] = {
+    val diff = diffLoader.loadDiff(sha, repoCache.getUnderlyingRepo(repoName)).getOrElse(List())
+        .filter(c => c.filename == fileName || c.renamedFilename == fileName)
+        .map(file => {
+       val patch = cutGitHeaders(file.patch)
+        val diffLines = parseDiff(patch)
+        val lineTypeCounts = diffLines.groupBy(_.lineType).map(group => (group._1, group._2.size))
+        CommitFileDiff(file.filename, file.status, diffLines, FileDiffStats(lineTypeCounts.getOrElse(LineTypeAdded, 0), lineTypeCounts.getOrElse(LineTypeRemoved, 0)))      
+    })
+    
+    if (diff.isEmpty) {
+      List()
+    } else {
+      diff.head.lines
+    }
+  }
 }

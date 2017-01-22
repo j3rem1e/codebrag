@@ -19,6 +19,13 @@ class SQLLikeDAO(val database: SQLDatabase) extends LikeDAO with SQLReactionSche
       .list()
   }
 
+  def findLikesForFileInCommits(fileName: String, commitIds: Seq[ObjectId]): List[Like] = db.withTransaction { implicit session =>
+    likes
+      .filter(c => (c.commitId inSet commitIds.toSet) && c.fileName === fileName)
+      .list()
+  }
+
+    
   def findAllLikesForThread(thread: ThreadDetails): List[Like] = db.withTransaction { implicit session =>
     likes
       .filter(c => c.commitId === thread.commitId && positionFilter(thread, c))

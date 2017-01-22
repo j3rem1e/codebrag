@@ -8,6 +8,8 @@ trait CommitCommentDAO {
   def save(comment: Comment)
 
   def findCommentsForCommits(commitId: ObjectId*): List[Comment]
+  
+  def findCommentsForFileInCommits(fileName: String, commitIds: Seq[ObjectId]) : List[Comment]
 
   def findAllCommentsForThread(thread: ThreadDetails): List[Comment]
 

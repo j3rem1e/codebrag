@@ -25,6 +25,8 @@ angular.module('codebrag.followups', ['ngResource', 'ui.compat', 'codebrag.auth'
 
 angular.module('codebrag.dashboard', ['ngResource', 'ui.compat', 'codebrag.auth', 'codebrag.events', 'codebrag.tour','codebrag.followups']);
 
+angular.module('codebrag.browser', ['ngResource', 'ui.compat', 'codebrag.auth', 'codebrag.events', 'codebrag.commits']);
+
 angular.module('codebrag.invitations', ['ui.validate', 'ui.keypress']);
 
 angular.module('codebrag.profile', ['codebrag.session']);
@@ -52,6 +54,7 @@ angular.module('codebrag', [
     'codebrag.branches',
     'codebrag.followups',
     'codebrag.dashboard',
+    'codebrag.browser',
     'codebrag.repostatus',
     'codebrag.favicon',
     'codebrag.tour',
@@ -187,4 +190,19 @@ angular.module('codebrag.dashboard')
             url: '/{commitId}/comments/{commentId}',
             templateUrl: 'views/secured/dashboard/dashboardDetails.html'
         });
+});
+
+angular.module('codebrag.browser')
+.config(function ($stateProvider, authenticatedUser) {	
+    $stateProvider
+        .state('browser', {
+            url: '/browser',
+            abstract: true,
+            templateUrl: 'views/secured/browser/browser.html',
+            resolve: authenticatedUser
+        })
+        .state('browser.file', {
+            url: '/{repoName}/{commitId}/{path:.*}',
+            templateUrl: 'views/secured/browser/file.html'
+        })
 });

@@ -21,7 +21,7 @@ object CommitInfo {
   }
 }
 
-case class CommitFileInfo(filename: String, status: String, patch: String)
+case class CommitFileInfo(filename: String, status: String, patch: String, renamedFilename: String)
 
 trait CommitLike[T] {
   def authorName(commitLike: T): String

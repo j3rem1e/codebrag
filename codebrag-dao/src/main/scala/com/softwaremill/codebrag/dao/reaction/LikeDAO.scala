@@ -8,6 +8,8 @@ trait LikeDAO {
   def save(like: Like)
 
   def findLikesForCommits(commitIds: ObjectId*): List[Like]
+  
+  def findLikesForFileInCommits(fileName: String, commitIds: Seq[ObjectId]): List[Like]
 
   def findAllLikesForThread(thread: ThreadDetails): List[Like]
 

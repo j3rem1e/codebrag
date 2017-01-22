@@ -43,4 +43,20 @@ class ReactionFinder(val userDAO: UserDAO, commitCommentDAO: CommitCommentDAO, l
 
     CommitReactionsView(entireReactionsView, inlineReactionsView)
   }
+  
+  def findReactionsForFileInCommits(fileName: String, commitIds: Seq[ObjectId]) = {
+   def reactionToView(reaction: UserReaction, author: PartialUserDetails) = {
+      reaction match {
+        case comment: Comment => CommentView(comment.id.toString, author.name, author.id.toString, comment.message, comment.postingTime, author.avatarUrl)
+        case like: Like => LikeView(reaction.id.toString, author.name, author.id.toString, reaction.postingTime)
+      }
+    }
+
+    val comments = commitCommentDAO.findCommentsForFileInCommits(fileName, commitIds)
+    val likes = likeDAO.findLikesForFileInCommits(fileName, commitIds)
+    
+    for ((commitId, reactions) <- (comments ++ likes).groupBy(_.commitId)) yield {
+      (commitId, mapInlineReactionsToView(reactions, reactionToView).get(fileName))
+    }
+  }
 }

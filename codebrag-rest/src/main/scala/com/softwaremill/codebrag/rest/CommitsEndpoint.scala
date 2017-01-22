@@ -10,6 +10,7 @@ import com.softwaremill.codebrag.finders.commits.toreview.{ToReviewCommitsViewBu
 import com.softwaremill.codebrag.finders.commits.all.AllCommitsFinder
 import com.softwaremill.codebrag.finders.browsingcontext.UserBrowsingContext
 import com.softwaremill.codebrag.usecases.reactions.{ReviewAllCommitsUseCase, ReviewCommitUseCase}
+import com.softwaremill.codebrag.service.browser.BrowseService
 
 trait CommitsEndpoint extends JsonServletWithAuthentication {
 
@@ -22,6 +23,8 @@ trait CommitsEndpoint extends JsonServletWithAuthentication {
   def reviewAllCommitsUseCase: ReviewAllCommitsUseCase
 
   def toReviewCommitsViewBuilder: ToReviewCommitsViewBuilder
+  
+  def browseService : BrowseService
 
   before() {
     haltIfNotAuthenticated()
@@ -40,6 +43,10 @@ trait CommitsEndpoint extends JsonServletWithAuthentication {
     reviewCommitUseCase.execute(params("repo"), params("sha"), user.id).left.map { err =>
       BadRequest(Map("err" -> err))
     }
+  }
+  
+  get("/:repo/:sha/*") {
+    browseService.loadFile(params("sha"), params("splat"), params("repo"))
   }
 
   delete("/:repo", commitsToReview) {

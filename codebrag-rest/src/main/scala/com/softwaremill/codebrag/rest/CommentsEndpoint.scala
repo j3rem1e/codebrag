@@ -5,6 +5,7 @@ import com.softwaremill.codebrag.service.comments.command.IncomingComment
 import com.softwaremill.codebrag.dao.finders.views.CommentView
 import com.softwaremill.codebrag.domain.Comment
 import com.softwaremill.codebrag.usecases.reactions.AddCommentUseCase
+import com.softwaremill.codebrag.service.diff.DiffWithCommentsService
 
 
 trait CommentsEndpoint extends JsonServletWithAuthentication with UserReactionParametersReader {
@@ -26,7 +27,7 @@ trait CommentsEndpoint extends JsonServletWithAuthentication with UserReactionPa
   private def incomingComment = {
     val params = readReactionParamsFromRequest
     val commentBody = extractNotEmptyString("body")
-
+    
     IncomingComment(new ObjectId(params.commitId), user.id, commentBody, params.fileName, params.lineNumber)
   }
 }
