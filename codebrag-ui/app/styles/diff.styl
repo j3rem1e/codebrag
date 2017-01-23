@@ -296,14 +296,24 @@ tr:hover .diff-line-num .button
     position: absolute;
     top: 0;
     left: 0;
-    padding: 4px;
     z-index: 100;
-    background: #f7f5ef;
+    background-color: #fff;
     border-radius: 4px;
     border: 1px solid #d1cbb9;
     box-shadow(0 5px 10px rgba(0,0,0,.2));
+    text-align: left;
     & > .popover-title
-    	font-weight: normal;
+    	font-weight: bold;
+    	background: #f7f5ef;
+    	margin: 0;
+    	padding: 8px 14px;
+    	font-size: 14px;
+    	background-color: #f7f7f7;
+    	border-bottom: 1px solid #ebebeb;
+    	border-radius: 5px 5px 0 0;
+    & > .popover-content
+        padding: 9px 14px;
+        min-width: 400px;
     & > .arrow
         &, &:after
             position: absolute;

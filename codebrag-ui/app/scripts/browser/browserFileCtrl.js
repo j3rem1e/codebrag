@@ -64,7 +64,7 @@ angular.module('codebrag.browser').controller('BrowserFileCtrl', function ($scop
   		$scope.file = response.data;
   		$scope.file.name = $stateParams.path;
   	});
-}).directive("lineBlame", function($state, $stateParams) {
+}).directive("lineBlame", function($state, $stateParams, $sanitize) {
 	return {
         restrict: 'A',
         link: function(scope, el) {
@@ -77,7 +77,25 @@ angular.module('codebrag.browser').controller('BrowserFileCtrl', function ($scop
         		
         		var commit = scope.findCommitBySha($(event.currentTarget).data("blame-commit"));
         		
-        		el.popover({title:commit.message, animation:false});
+        		var headline = commit.message.split(/\n+/)[0] || 'no headline';
+        		var detailed = '';
+        		var parts = commit.message.split(/\n+/);
+                if (parts.length > 1) {
+                    parts.shift();
+                    detailed = parts.join('<br>');
+                }
+                
+                var date = moment(commit.date).add(-1, 'hour').fromNow();
+                
+                // TODO: Angular template...
+                var detailedHtml = '<div class="authored-box"><div class="author-box"><img src="' + 
+                commit.authorAvatarUrl + 
+                '?d=https://raw.githubusercontent.com/softwaremill/codebrag/master/codebrag-ui/app/assets/images/avatar.png"></div>' +
+                '<div class="info-box"><div><span>' + detailed + '</span></div></div>' +
+                '<div class="info-line"><span class="username">' + commit.authorName + '</span><span class="time">' + date + '</span></div>' +
+                '</div></div>';
+                    
+        		el.popover({title:headline, animation:false, content:$sanitize(detailedHtml), html:true});
         		el.popover('show');
         	});
         	fileDiffRoot.on('mouseleave', hoverSelector, function(event) {

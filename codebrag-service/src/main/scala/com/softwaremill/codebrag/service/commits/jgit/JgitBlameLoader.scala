@@ -19,7 +19,7 @@ import com.softwaremill.codebrag.service.commits.BlameInfo
 
 class JgitBlameLoader extends BlameLoader {
   
-  def loadBlame(sha: String, name: String, repository: CBRepo): BlameInfo = {
+  def loadBlame(sha: String, name: String, repository: CBRepo): Option[BlameInfo] = {
     
     val blamer = new BlameCommand(repository.repo)
     val commitID = repository.repo.resolve(sha);
@@ -28,14 +28,18 @@ class JgitBlameLoader extends BlameLoader {
     blamer.setFilePath(name);
     val blame = blamer.call();
     
-    val files = getLines(repository.repo, commitID, name)
-    
-    BlameInfo(files.zipWithIndex.map { 
-      case (line,index) => {
-        val commit = blame.getSourceCommit(index)
-        BlameLineInfo(line, blame.getSourceCommit(index).getName, blame.getSourcePath(index), blame.getSourceLine(index))
-      }
-    })
+    try {
+      val files = getLines(repository.repo, commitID, name)
+      
+      Some(BlameInfo(files.zipWithIndex.map { 
+        case (line,index) => {
+          val commit = blame.getSourceCommit(index)
+          BlameLineInfo(line, blame.getSourceCommit(index).getName, blame.getSourcePath(index), blame.getSourceLine(index))
+        }
+      }))
+    } catch {
+      case e: Exception => None
+    }
   }
   
   private def getLines(repository: Repository, commitId: ObjectId, name: String): List[String] = {

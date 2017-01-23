@@ -3,7 +3,6 @@ package com.softwaremill.codebrag.service.browser
 import com.softwaremill.codebrag.cache.RepositoriesCache
 import com.softwaremill.codebrag.service.commits.jgit.JgitBlameLoader
 import com.softwaremill.codebrag.service.commits.jgit.JgitBlameLoader
-import com.softwaremill.codebrag.domain.PartialCommitInfo
 import com.softwaremill.codebrag.dao.finders.reaction.ReactionFinder
 import com.softwaremill.codebrag.service.commits.BlameLineInfo
 import org.joda.time.DateTime
@@ -14,18 +13,26 @@ import com.softwaremill.codebrag.service.diff.DiffService
 import com.softwaremill.codebrag.domain.CommitFileDiff
 import com.softwaremill.codebrag.domain.DiffLine
 import scala.collection.mutable.HashMap
+import org.bson.types.ObjectId
+import com.softwaremill.codebrag.domain.User
+import com.softwaremill.codebrag.domain.UserSettings
 
 class BrowseService(repoCache: RepositoriesCache, commitInfoDAO: CommitInfoDAO, reactionFinder: ReactionFinder, diffService: DiffService) extends JgitBlameLoader {
   
   def loadFile(sha: String, file: String, repoName: String): Option[FileInfo] = {
     val repository = repoCache.getRepo(repoName).repository
-    val blame = loadBlame(sha, file, repository) 
+    val blameResult = loadBlame(sha, file, repository)
+    if (blameResult.isEmpty) {
+      return None
+    }
+    val blame = blameResult.get
     val linesWithIndex = blame.lines.zipWithIndex
        
     val shaDiffs = for ((sha, lines) <- blame.lines.groupBy(_.sha)) yield { (sha, diffService.getDiffForFile(repoName, sha, lines.head.path)) }
     
     // All referenced commits
     val commitsInfo = commitInfoDAO.findByShaList(repoName, shaDiffs.keySet.toList)
+      .map(c => FileCommitInfo(c.id, c.sha, c.message, c.authorName, c.authorEmail, UserSettings.defaultAvatarUrl(c.authorEmail), c.date))
         
     // All reactions
     val reactions = new HashMap[String, ReactionsView]
@@ -61,8 +68,8 @@ class BrowseService(repoCache: RepositoriesCache, commitInfoDAO: CommitInfoDAO, 
   
 }
 
-case class FileInfo(lines: List[LineInfo], commits: List[PartialCommitInfo], reactions: Map[String, ReactionsView])
+case class FileInfo(lines: List[LineInfo], commits: List[FileCommitInfo], reactions: Map[String, ReactionsView])
 
 case class LineInfo(line: String, diffLineNumber:Int, sha: String)
 
-case class FileCommitInfo(sha: String, message: String, authorName: String, authorEmail: String, commitDate: DateTime)
+case class FileCommitInfo(id: ObjectId, sha: String, message: String, authorName: String, authorEmail: String, authorAvatarUrl: String, date: DateTime)

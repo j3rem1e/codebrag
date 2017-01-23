@@ -3,7 +3,7 @@ package com.softwaremill.codebrag.service.commits
 import com.softwaremill.codebrag.repository.Repository
 
 trait BlameLoader {
-    def loadBlame(sha: String, file: String, repo: Repository): BlameInfo
+    def loadBlame(sha: String, file: String, repo: Repository): Option[BlameInfo]
 }
 
 case class BlameInfo(lines: List[BlameLineInfo])

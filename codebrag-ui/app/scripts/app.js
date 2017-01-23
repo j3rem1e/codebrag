@@ -25,7 +25,7 @@ angular.module('codebrag.followups', ['ngResource', 'ui.compat', 'codebrag.auth'
 
 angular.module('codebrag.dashboard', ['ngResource', 'ui.compat', 'codebrag.auth', 'codebrag.events', 'codebrag.tour','codebrag.followups']);
 
-angular.module('codebrag.browser', ['ngResource', 'ui.compat', 'codebrag.auth', 'codebrag.events', 'codebrag.commits']);
+angular.module('codebrag.browser', ['ngResource', 'ngSanitize', 'ui.compat', 'codebrag.auth', 'codebrag.events', 'codebrag.commits']);
 
 angular.module('codebrag.invitations', ['ui.validate', 'ui.keypress']);
 
