@@ -1,4 +1,20 @@
 <div class="class="row" auto-fit-height>
-<div style="margin: 30px" class="diff" ui-view>
-</div>
+	<div class="small-12 large-12 columns">
+        <div class="commits-tab-header row">
+            <div class="small-3 large-3 columns">
+              <div class="branch-selector">
+                    <div class="branch-btn" ng-controller="BrowserBranchCtrl">
+	                    <dropdown selected="userCommitId" icon="assets/images/branch.png">
+	                        <ul class="branches-list">
+	                            <li ng-repeat="branch in branches" ng-class="{'selected': isSelected(branch)}" ng-click="selectBranch(branch)">
+	                                {{branch.name}}
+	                            </li>
+	                        </ul>
+	                    </dropdown>
+	                </div>
+              </div>
+
+          </div>
+    </div>
+	<div style="margin: 30px" class="diff" ui-view>
 </div>

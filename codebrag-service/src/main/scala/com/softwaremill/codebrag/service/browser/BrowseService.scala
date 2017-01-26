@@ -16,37 +16,46 @@ import scala.collection.mutable.HashMap
 import org.bson.types.ObjectId
 import com.softwaremill.codebrag.domain.User
 import com.softwaremill.codebrag.domain.UserSettings
+import com.softwaremill.codebrag.service.commits.FolderInfo
 
 class BrowseService(repoCache: RepositoriesCache, commitInfoDAO: CommitInfoDAO, reactionFinder: ReactionFinder, diffService: DiffService) extends JgitBlameLoader {
   
-  def loadFile(sha: String, file: String, repoName: String): Option[FileInfo] = {
+  def loadFile(sha: String, file: String, repoName: String): Option[Either[FileInfo, FolderInfo]] = {
     val repository = repoCache.getRepo(repoName).repository
-    val blameResult = loadBlame(sha, file, repository)
-    if (blameResult.isEmpty) {
-      return None
-    }
-    val blame = blameResult.get
-    val linesWithIndex = blame.lines.zipWithIndex
-       
-    val shaDiffs = for ((sha, lines) <- blame.lines.groupBy(_.sha)) yield { (sha, diffService.getDiffForFile(repoName, sha, lines.head.path)) }
     
-    // All referenced commits
-    val commitsInfo = commitInfoDAO.findByShaList(repoName, shaDiffs.keySet.toList)
-      .map(c => FileCommitInfo(c.id, c.sha, c.message, c.authorName, c.authorEmail, UserSettings.defaultAvatarUrl(c.authorEmail), c.date))
+    val fileInfo = loadBlame(sha, file, repository)
         
-    // All reactions
-    val reactions = new HashMap[String, ReactionsView]
-    reactionFinder.findReactionsForFileInCommits(file, commitsInfo.map(_.id)).foreach { case (commitId, Some(comments)) => 
-        val sha = commitsInfo.find(_.id == commitId).get.sha
-        val relatedDiff = shaDiffs.get(sha).get
-        for ((diffNumber, threadReactions) <- comments) {
-            reactions.put(translateDiffNumberToLineNumber(diffNumber.toInt, sha, relatedDiff, linesWithIndex).toString(), threadReactions)
-        }
-     };
+    fileInfo match {
+      case None => None
+      case Some(Left(blame)) => {
+            val linesWithIndex = blame.lines.zipWithIndex
+               
+            val shaDiffs = for ((sha, lines) <- blame.lines.groupBy(_.sha)) yield { (sha, diffService.getDiffForFile(repoName, sha, lines.head.path)) }
+            
+            // All referenced commits
+            val commitsInfo = commitInfoDAO.findByShaList(repoName, shaDiffs.keySet.toList)
+              .map(c => FileCommitInfo(c.id, c.sha, c.message, c.authorName, c.authorEmail, UserSettings.defaultAvatarUrl(c.authorEmail), c.date))
+                
+            // All reactions
+            val reactions = new HashMap[String, ReactionsView]
+            reactionFinder.findReactionsForFileInCommits(file, commitsInfo.map(_.id)).foreach { case (commitId, Some(comments)) => 
+                val sha = commitsInfo.find(_.id == commitId).get.sha
+                val relatedDiff = shaDiffs.get(sha).get
+                for ((diffNumber, threadReactions) <- comments) {
+                    reactions.put(translateDiffNumberToLineNumber(diffNumber.toInt, sha, relatedDiff, linesWithIndex).toString(), threadReactions)
+                }
+             };
+            
+            Some(Left(FileInfo(linesWithIndex.map { 
+                case (BlameLineInfo(line, sha, path, lineNumber), number) => LineInfo(line, translateLineNumberToDiffNumber(lineNumber + 1, shaDiffs.getOrElse(sha, List())), sha) 
+              }, commitsInfo, reactions.toMap)))
+      }
+      case Some(Right(folderInfo)) => {
+          Some(Right(folderInfo))
+      }
+    }
     
-    Some(FileInfo(linesWithIndex.map { 
-        case (BlameLineInfo(line, sha, path, lineNumber), number) => LineInfo(line, translateLineNumberToDiffNumber(lineNumber + 1, shaDiffs.getOrElse(sha, List())), sha) 
-      }, commitsInfo, reactions.toMap))
+
   }
   
   private def translateLineNumberToDiffNumber(lineNumber: Int, lines: List[DiffLine]): Int = 

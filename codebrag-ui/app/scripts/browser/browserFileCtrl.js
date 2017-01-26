@@ -22,6 +22,20 @@ angular.module('codebrag.browser').controller('BrowserFileCtrl', function ($scop
 	}
 	
 	$scope.fileName = $stateParams.path;
+	$scope.slashyFileName = $stateParams.path == '' ? '' : '/' + $stateParams.path;
+	
+	function buildPartialPath(path) {
+		var result = [];
+		var current = '';
+		path.split('/').forEach(function(part) {
+			var full = current + part;
+			result.push({part: part, path:full});
+			current = full + '/';
+		});
+		return result;
+	}
+	
+	$scope.paths = buildPartialPath($stateParams.path);
 	
 	function findCommitBySha(id) {
 		return $scope.file.commits.find(function(c) { return c.sha === id });
@@ -56,13 +70,21 @@ angular.module('codebrag.browser').controller('BrowserFileCtrl', function ($scop
             $scope.file.reactions[commentData.lineNumber].comments.push(comment);
         });
 	};
+	
+	$scope.repoName = $stateParams.repoName;
+	$scope.commitId = $stateParams.commitId;
 
   	browserService.loadFile($stateParams.repoName, $stateParams.commitId, $stateParams.path).then(function(response) {
   	
-  		generateCommitColorID(response.data);
+  		if (response.data.lines) {
+  			generateCommitColorID(response.data);
+  		}
   	
   		$scope.file = response.data;
   		$scope.file.name = $stateParams.path;
+  		$scope.file.paths = $scope.paths;
+  		$scope.file.repoName = $scope.repoName;
+  		$scope.file.commitId = $scope.commitId;
   	});
 }).directive("lineBlame", function($state, $stateParams, $sanitize) {
 	return {
@@ -108,4 +130,40 @@ angular.module('codebrag.browser').controller('BrowserFileCtrl', function ($scop
         	});
         }
     };
+}).controller("BrowserBranchCtrl", function(branchesService, $scope, $stateParams, $state, events) {
+
+	function update() {
+		$scope.branches = [];
+		$scope.commitId = $stateParams.commitId;
+		$scope.userCommitId = $stateParams.commitId.replace(new RegExp("\\$", 'g'), '/');
+	    
+		branchesService.loadBranches($stateParams.repoName).then(function() {
+			var branches = [];
+			var re = new RegExp("/", 'g');
+			var found = false;
+			
+			branchesService.branches.forEach(function(branch) {
+				var current = {name:branch.name, path:branch.name.replace(re, '$')};
+				branches.push(current);
+				found |= $stateParams.commitId === current.path;
+			});
+			if (!found) {
+				branches.push({name:$scope.userCommitId, path:$scope.commitId});
+			}
+			
+			$scope.branches = branches;
+		});		
+	};
+	
+	update();
+	$scope.$on(events.browserRepoChanged, update);
+	
+	$scope.isSelected = function(branch) {
+		return $stateParams.commitId === branch.path;
+	};
+	
+	$scope.selectBranch = function(branch) {
+		$scope.commitId = branch.path;
+		$state.transitionTo("browser.file", {commitId:branch.path, repoName: $stateParams.repoName, path: $stateParams.path});
+	};
 });

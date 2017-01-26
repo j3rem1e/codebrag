@@ -440,3 +440,33 @@ tr:hover .diff-line-num .button
   background-position: center center;
   background-repeat: no-repeat;
   min-height: 550px;
+  
+.folder-list
+    width: 100%;
+    & tr:hover
+        background: #f7f5ef;
+    & td
+        line-height: 20px;
+    & td.age
+        width: 125px;
+        padding-right: 10px; 
+        text-align: right;
+        white-space: nowrap;        
+    & td.filename
+        width: 220px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    & td.folder
+    	width: 24px;
+    & td.message
+        padding-left: 10px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;  
+        max-width: 250px;
+        & a
+            text-decoration: none;
+            color: inherit;
+            &:hover
+                text-decoration: underline;

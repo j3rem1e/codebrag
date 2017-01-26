@@ -1,12 +1,14 @@
 <div class="diff-wrapper" auto-fit-comments-width ng-controller="BrowserFileCtrl">
-    <div class="diff-container clearfix">
+    <div class="diff-container clearfix" ng-if="file.lines">
 		<commit-diff data="file" compile="tfoot">
 	    	
 	        <div class="diff-table-wrapper">
 	            <table class="diff-file-container">
 	                <thead class="diff-file-name">
 	                    <tr>
-	                        <th colspan="3">{{file.name}}</th>
+	                    	<th colspan="3">
+		                   		<span><strong><a href="#/browser/{{file.repoName}}/{{file.commitId}}/">{{file.repoName}}</a></strong></span><!-- {{#each file.paths}} --><span>/<a href="#/browser/{{../file.repoName}}/{{../file.commitId}}/{{path}}">{{part}}</a></span><!-- {{/each}} -->
+	                    	</th>
 	                    </tr>
 	                </thead>
 	                <!-- {{#each file.lines}} -->
@@ -38,6 +40,27 @@
 	    
 	    <div id="commit-comments-area" class="comments-container" style="background: transparent; border-color: transparent;">
     	</div>
+	</div>
+	<div class="diff-container clearfix" ng-if="file.files">
+		<div class="diff-table-wrapper">
+			<table class="folder-list diff-file-container">
+				<tbody>
+					<thead class="diff-file-name">
+	                    <tr>
+	                        <th colspan="4">
+	                        	<span><strong><a href="#/browser/{{repoName}}/{{commitId}}/">{{repoName}}</a></strong></span><span ng-repeat="p in paths">/<a href="#/browser/{{repoName}}/{{commitId}}/{{p.path}}">{{p.part}}</a></span>
+	                        </th>
+	                    </tr>
+	                </thead>
+					<tr ng-repeat="child in file.files | orderBy:['-tree','name']">
+						<td class="folder"><i ng-show="child.tree" class="icon-folder-open"></i></td>
+						<td class="filename"><a href="#/browser/{{repoName}}/{{commitId}}{{slashyFileName}}/{{child.name}}">{{child.name}}</a></td>
+						<td class="message"><a href="#/{{repoName}}/commits/{{child.commit.sha}}">{{child.commit.message}}</a></td>
+						<td class="age">{{child.commit.date | relativeDate}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 	</div>
 	
 

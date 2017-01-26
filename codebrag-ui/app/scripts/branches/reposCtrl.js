@@ -1,6 +1,6 @@
 angular.module('codebrag.branches')
 
-    .controller('ReposCtrl', function ($scope, $state, events, currentRepoContext) {
+    .controller('ReposCtrl', function ($scope, $state, events, currentRepoContext, $rootScope) {
 
         $scope.repos = function() {
             return Object.getOwnPropertyNames(currentRepoContext.all);
@@ -17,6 +17,17 @@ angular.module('codebrag.branches')
 
         $scope.selectedBranch = function() {
             return currentRepoContext.repo;
+        };
+        
+        $scope.browseRepo = function(repo) {
+        	
+            $state.transitionTo('browser.file', {repoName: repo, path:'', commitId:currentRepoContext.all[repo].replace(new RegExp("/", 'g'), '$')}, true).then(function() {
+            	$rootScope.$broadcast(events.browserRepoChanged);
+            });
+        };
+        
+        $scope.browseCurrentRepo = function() {
+        	$scope.browseRepo(currentRepoContext.repo);
         };
 
     });

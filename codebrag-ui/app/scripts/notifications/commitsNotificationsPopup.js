@@ -53,4 +53,26 @@ Displayed on event and hidden when clicked outside.
             }
         }
 
+    }).directive('menuHover', function() {
+
+        function show(el) {
+            return function() {
+                return el.show();
+            }
+        }
+
+        function hide(el) {
+            return function() {
+                return el.hide();
+            }
+        }
+
+        return {
+            restrict: 'A',
+            link: function(scope, el) {
+                el.parent('li').hover(show(el), hide(el));
+                el.parent('li').click(hide(el));
+            }
+        }
+
     });

@@ -239,6 +239,21 @@
                         </span>
                     </a>
                 </li>
+                <li style="position: relative" ng-controller="ReposCtrl">
+                    <a id="repositories-btn" class="button" active-for-states="browser,browser.file" ng-click="browseCurrentRepo()">
+                        <span class="number">
+                            Repositories
+                            <span class="ghost-notification" ng-show="followupsNotificationAvailable"></span>
+                        </span>
+                    </a>
+                    <div class="notification-popup" style="width: 100%" tabindex="-1" menu-hover >
+					    <ul>
+					        <li ng-repeat="repo in repos()" style="white-space: nowrap" ng-click="browseRepo(repo)">
+					            <span>{{repo}}</span>
+					        </li>
+					    </ul>
+					</div>
+                </li>
  				<li>
                     <a id="events-btn" ng-click="openDashboard()" class="button" active-for-states="dashboard,dashboard.list,dashboard.details">
                         <span class="number">
