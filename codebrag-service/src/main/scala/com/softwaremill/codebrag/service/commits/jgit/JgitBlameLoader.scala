@@ -24,6 +24,7 @@ import com.softwaremill.codebrag.service.commits.FolderInfo
 import com.softwaremill.codebrag.service.browser.FileInfo
 import com.softwaremill.codebrag.service.commits.FolderFileInfo
 import com.softwaremill.codebrag.service.commits.FileCommitInfo
+import org.eclipse.jgit.diff.RawText
 
 class JgitBlameLoader extends BlameLoader {
   
@@ -136,7 +137,13 @@ class JgitBlameLoader extends BlameLoader {
       val loader = repository.open(objectId)
       val stream = new ByteArrayOutputStream()
       loader.copyTo(stream)
-      Source.fromBytes(stream.toByteArray()).getLines().toList
+      
+      val bytes = stream.toByteArray()
+      if (RawText.isBinary(bytes)) {
+        return List()
+      } else {
+        Source.fromBytes(stream.toByteArray()).getLines().toList
+      }
   }
   
 }

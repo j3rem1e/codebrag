@@ -6,7 +6,7 @@
                     <div class="branch-btn" ng-controller="BrowserBranchCtrl">
 	                    <dropdown selected="userCommitId" icon="assets/images/branch.png">
 	                        <ul class="branches-list">
-	                            <li ng-repeat="branch in branches" ng-class="{'selected': isSelected(branch)}" ng-click="selectBranch(branch)">
+	                            <li ng-repeat="branch in branches | orderBy:'toString()'" ng-class="{'selected': isSelected(branch)}" ng-click="selectBranch(branch)">
 	                                {{branch.name}}
 	                            </li>
 	                        </ul>
