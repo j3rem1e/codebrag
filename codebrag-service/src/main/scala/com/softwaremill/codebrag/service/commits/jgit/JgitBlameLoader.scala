@@ -104,14 +104,12 @@ class JgitBlameLoader extends BlameLoader {
         case _ => treeInfo
       }
      
-    val revWalk = new RevWalk(repository)
-    try {
+    (using(new RevWalk(repository))) { revWalk =>
       val ref = revWalk.parseAny(commitId)
       val commit = revWalk.parseCommit(commitId)
       val tree = commit.getTree()
             
-      val treeWalk = new TreeWalk(repository)
-      try {        
+      (using(new TreeWalk(repository))) { treeWalk =>
         treeWalk.addTree(tree)
         treeWalk.setRecursive(false)
         if (!path.isEmpty()) {
@@ -144,11 +142,7 @@ class JgitBlameLoader extends BlameLoader {
         revWalk.dispose()
 
         return ObjectInfo(target, children.toList)
-      } finally {
-        treeWalk.close()
       }
-    } finally {
-      revWalk.close()
     }
   }
   
