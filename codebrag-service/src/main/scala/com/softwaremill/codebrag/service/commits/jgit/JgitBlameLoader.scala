@@ -25,6 +25,8 @@ import com.softwaremill.codebrag.service.browser.FileInfo
 import com.softwaremill.codebrag.service.commits.FolderFileInfo
 import com.softwaremill.codebrag.service.commits.FileCommitInfo
 import org.eclipse.jgit.diff.RawText
+import scala.annotation.tailrec
+import org.eclipse.jgit.revwalk.RevCommit
 
 class JgitBlameLoader extends BlameLoader {
   
@@ -34,16 +36,16 @@ class JgitBlameLoader extends BlameLoader {
       case x if (x != null) => x
       case null => repository.repo.resolve("remotes/origin/" + unquotedSha);
     }
-    System.out.println(commitID);
     val objectInfo = getObjectInfo(repository.repo, commitID, name)
         
     objectInfo.info match {
       case None => return None
-      case Some(TreeInfo(path, name, true, id)) => {
+      case Some(TreeInfo(path, name, FileMode.TREE, id)) => {
         val git = new Git(repository.repo)
         Some(Right(FolderInfo(objectInfo.children.map { tree => 
+                    
           val commit = git.log().add(commitID).addPath(tree.path).call().iterator().next()
-          FolderFileInfo(tree.name, tree.tree,
+          FolderFileInfo(tree.name, tree.fileMode == FileMode.TREE,
               FileCommitInfo(commit.getName, 
                   commit.getFullMessage, 
                   commit.getAuthorIdent.getName, 
@@ -51,7 +53,7 @@ class JgitBlameLoader extends BlameLoader {
                   new DateTime(commit.getCommitTime * 1000l)))
           })))
       }
-      case Some(TreeInfo(path, name, false, id)) => {
+      case Some(TreeInfo(path, name, _, id)) => {
                 
         val blamer = new BlameCommand(repository.repo)
 
@@ -76,6 +78,32 @@ class JgitBlameLoader extends BlameLoader {
   }
   
   private def getObjectInfo(repository: Repository, commitId: ObjectId, path: String): ObjectInfo = {
+    
+    def using[A <% { def close(): Unit }, B](resource: A)(f: A => B): B =
+    try f(resource) finally {
+      if(resource != null){
+          resource.close()
+      }
+    }
+    
+     @tailrec
+      def simplifyPath(treeInfo : TreeInfo): TreeInfo = treeInfo match {
+        case TreeInfo(path, name, FileMode.TREE, oid) =>
+          (using(new TreeWalk(repository)) { walk =>
+            walk.addTree(oid)
+            // single tree child, or None
+            if(walk.next() && walk.getFileMode(0) == FileMode.TREE) {
+              Some(TreeInfo(path + '/' + walk.getPathString, name + "/" + walk.getNameString, walk.getFileMode(0), walk.getObjectId(0))).filterNot(_ => walk.next())
+            } else {
+              None
+            }
+          }) match {
+            case Some(treeInfo) => simplifyPath(treeInfo)
+            case _ => treeInfo
+          }
+        case _ => treeInfo
+      }
+     
     val revWalk = new RevWalk(repository)
     try {
       val ref = revWalk.parseAny(commitId)
@@ -91,7 +119,7 @@ class JgitBlameLoader extends BlameLoader {
         }
         
         val children = new ArrayBuffer[TreeInfo];
-        var  target: Option[TreeInfo] = if (path.isEmpty()) Some(TreeInfo("/", "/", true, null)) else None
+        var  target: Option[TreeInfo] = if (path.isEmpty()) Some(TreeInfo("/", "/", FileMode.TREE, null)) else None
         while (treeWalk.next()) {
           
           val currentPath = treeWalk.getPathString
@@ -106,10 +134,8 @@ class JgitBlameLoader extends BlameLoader {
           } else {
             
             if (target.isDefined) {
-               children.append(createTreeInfo(treeWalk))
-
-               //val commit = new Git(repository).log().addPath(treeWalk.getPathString).setMaxCount(1).call().iterator().next()
-             } else if (target.isEmpty && treeWalk.isSubtree()) {
+                children.append(simplifyPath(createTreeInfo(treeWalk)))
+            } else if (target.isEmpty && treeWalk.isSubtree()) {
               treeWalk.enterSubtree()
             }
           }
@@ -126,11 +152,11 @@ class JgitBlameLoader extends BlameLoader {
     }
   }
   
-  private def createTreeInfo(tree: TreeWalk) : TreeInfo = TreeInfo(tree.getPathString, tree.getNameString, tree.isSubtree(), tree.getObjectId(0))
+  private def createTreeInfo(tree: TreeWalk) : TreeInfo = TreeInfo(tree.getPathString, tree.getNameString, tree.getFileMode(0), tree.getObjectId(0))
   
   
   
-  case class TreeInfo(path: String, name: String, tree: Boolean, id: ObjectId)
+  case class TreeInfo(path: String, name: String, fileMode: FileMode, id: ObjectId)
   case class ObjectInfo(info: Option[TreeInfo], children: List[TreeInfo])
   
   private def getLines(repository: Repository, objectId: ObjectId): List[String] = {

@@ -247,7 +247,7 @@
                     </a>
                     <div class="notification-popup" style="width: 100%" tabindex="-1" menu-hover >
 					    <ul>
-					        <li ng-repeat="repo in repos()" style="white-space: nowrap" ng-click="browseRepo(repo)">
+					        <li ng-repeat="repo in repos() | orderBy:'toString()'" style="white-space: nowrap" ng-click="browseRepo(repo)">
 					            <span>{{repo}}</span>
 					        </li>
 					    </ul>

@@ -164,7 +164,7 @@ angular.module('codebrag.browser').controller('BrowserFileCtrl', function ($scop
 	
 	$scope.selectBranch = function(branch) {
 		$scope.commitId = branch.path;
-		$scope.userCommitId = $stateParams.commitId.replace(new RegExp("\\$", 'g'), '/');
+		$scope.userCommitId = branch.path.replace(new RegExp("\\$", 'g'), '/');
 		$state.transitionTo("browser.file", {commitId:branch.path, repoName: $stateParams.repoName, path: $stateParams.path});
 	};
 });
