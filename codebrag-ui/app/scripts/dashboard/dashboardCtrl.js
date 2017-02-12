@@ -4,15 +4,32 @@ angular.module('codebrag.dashboard')
 
         $scope.$on(events.dashboardOpened, initCtrl);
 
+        $scope.loadAll = function() {
+            dashboardService.allEvents().then(function(commits) {
+                 $scope.commits = commits;
+            });
+        };
+
+       $scope.loadWatchedRepositories = function() {
+            dashboardService.loadWatchedRepositories().then(function(commits) {
+                 $scope.commits = commits;
+            });
+        };
+
+       $scope.loadMyComments = function() {
+            dashboardService.loadMyComments().then(function(commits) {
+                 $scope.commits = commits;
+            });
+        };
 
         $scope.pageTourForFollowupsVisible = function() {
             return pageTourService.stepActive('dashboard') || pageTourService.stepActive('invites');
         };
 
         function initCtrl() {
-        	dashboardService.allEvents().then(function(commits) {
-                $scope.commits = commits;
-            });
+        	dashboardService.loadWatchedEventsIfNecessary().then(function(commits) {
+        	    $scope.commits = commits;
+        	});
             $scope.hasFollowupsAvailable = true;
             $scope.mightHaveFollowups = true;
         }

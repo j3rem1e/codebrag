@@ -7,13 +7,26 @@ angular.module('codebrag.dashboard')
         
         var currentRequest;
 
-        function allEvents() {
-        	currentRequest = _httpRequest('GET').then(function(response) {
-            	commitsListLocal.addAll(response.data.eventCommitsView);
+        function load(param) {
+            currentRequest = _httpRequest(param).then(function(response) {
+                commitsListLocal.addAll(response.data.eventCommitsView);
                 listFetched = true;
                 return commitsListLocal.collection;
             });
-        	return currentRequest;
+            return currentRequest;
+        }
+
+
+        function allEvents() {
+        	return load();
+        }
+
+        function myEvents() {
+            return load('user');
+        }
+
+        function loadWatchedRepositories() {
+            return load('watched');
         }
         
         function loadEventsIfNecessary() {
@@ -24,13 +37,32 @@ angular.module('codebrag.dashboard')
             }
         }
 
-        function getCommitFromCommentId(commentId) {
-        	return loadEventsIfNecessary().then(function() { return commitsListLocal.getCommitFromCommentId(commentId) });
+        function loadWatchedEventsIfNecessary() {
+            if (currentRequest) {
+                return currentRequest;
+            } else {
+                return loadWatchedRepositories();
+            }
         }
 
-        function _httpRequest(method, config) {
+        function getCommitFromCommentId(commentId) {
+        	return loadEventsIfNecessary().then(function() {
+        	    var c = commitsListLocal.getCommitFromCommentId(commentId);
+        	    if (c !== undefined) {
+        	        return c;
+        	    }
+        	    return allEvents().then(function() {
+        	        return commitsListLocal.getCommitFromCommentId(commentId);
+        	    });
+        	});
+        }
+
+        function _httpRequest(param, config) {
             var dashboardUrl = 'rest/dashboard';
-            var reqConfig = angular.extend(config || {}, {method: method, url: dashboardUrl});
+            if (param) {
+                dashboardUrl = dashboardUrl + '?' + param;
+            }
+            var reqConfig = angular.extend(config || {}, {method: 'GET', url: dashboardUrl});
             return $http(reqConfig);
         }
 
@@ -40,6 +72,9 @@ angular.module('codebrag.dashboard')
 
         return {
         	allEvents: allEvents,
+        	loadMyComments: myEvents,
+        	loadWatchedRepositories: loadWatchedRepositories,
+        	loadWatchedEventsIfNecessary: loadWatchedEventsIfNecessary,
             getCommitFromCommentId: getCommitFromCommentId,
         };
 

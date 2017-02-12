@@ -46,7 +46,7 @@ trait Daos {
   lazy val followupFinder = new SQLFollowupFinder(sqlDatabase, userDao)
   lazy val reactionFinder = new ReactionFinder(userDao, commentDao, likeDao)
   lazy val statsFinder = new StatsEventsFinder(eventDao)
-  lazy val dashboardFinder = new SQLDashboardFinder(sqlDatabase, userDao)
+  lazy val dashboardFinder = new SQLDashboardFinder(sqlDatabase, userDao, userObservedBranchesDao)
   def sqlDatabase: SQLDatabase
   def clock: Clock
 }

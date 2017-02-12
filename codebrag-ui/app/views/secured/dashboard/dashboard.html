@@ -1,6 +1,25 @@
 <div id="followups-tab-content" class="row" ng-controller="DashboardCtrl" auto-fit-height>
+
     <div class="commits items-list small-3 large-3 columns">
-        <div class="items-container">
+
+        <div class="commits-tab-header row branch-selector">
+            <div class="small-7 large-7 columns">
+                <div class="repo-btn">
+                    <div class="dropdown-btn btn-small">
+                        <div class="selected text-center">
+                            <span class="octicon octicon-comment-discussion"></span>
+                        </div>
+                        <ul class="branches-list">
+                            <li ng-click="loadWatchedRepositories()">Watched Repositories</li>
+                            <li ng-click="loadMyComments()">My Comments</li>
+                            <li ng-click="loadAll()">All</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="items-container row">
 
             <div class="followups-container" ng-repeat="commit in commits">
                 <div class="info-box">
