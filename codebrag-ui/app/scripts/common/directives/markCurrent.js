@@ -1,5 +1,5 @@
 angular.module('codebrag.common.directives')
-    .directive('markCurrent', function ($stateParams) {
+    .directive('markCurrent', function ($stateParams, events) {
 
         return {
             restrict: 'A',
@@ -22,6 +22,9 @@ angular.module('codebrag.common.directives')
 
                 function hookOnEvent() {
                     scope.$on('$stateChangeSuccess', function() {
+                        markActive();
+                    });
+                    scope.$on(events.scrollToComment, function() {
                         markActive();
                     });
                 }

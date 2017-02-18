@@ -7,6 +7,8 @@ angular.module('codebrag.dashboard')
         
         var currentRequest;
 
+        var parameters = 'watched';
+
         function load(param) {
             currentRequest = _httpRequest(param).then(function(response) {
                 commitsListLocal.addAll(response.data.eventCommitsView);
@@ -62,6 +64,7 @@ angular.module('codebrag.dashboard')
             if (param) {
                 dashboardUrl = dashboardUrl + '?' + param;
             }
+            parameters = param;
             var reqConfig = angular.extend(config || {}, {method: 'GET', url: dashboardUrl});
             return $http(reqConfig);
         }
@@ -70,11 +73,16 @@ angular.module('codebrag.dashboard')
             $rootScope.$broadcast(events.followupDone);
         }
 
+        function refresh() {
+            return load(parameters);
+        }
+
         return {
         	allEvents: allEvents,
         	loadMyComments: myEvents,
         	loadWatchedRepositories: loadWatchedRepositories,
         	loadWatchedEventsIfNecessary: loadWatchedEventsIfNecessary,
+        	refresh: refresh,
             getCommitFromCommentId: getCommitFromCommentId,
         };
 

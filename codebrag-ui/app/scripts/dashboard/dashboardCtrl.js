@@ -1,8 +1,6 @@
 angular.module('codebrag.dashboard')
 
-    .controller('DashboardCtrl', function ($scope, $http, dashboardService, pageTourService, events) {
-
-        $scope.$on(events.dashboardOpened, initCtrl);
+    .controller('DashboardCtrl', function ($scope, dashboardService) {
 
         $scope.loadAll = function() {
             dashboardService.allEvents().then(function(commits) {
@@ -23,17 +21,23 @@ angular.module('codebrag.dashboard')
         };
 
         $scope.pageTourForFollowupsVisible = function() {
-            return pageTourService.stepActive('dashboard') || pageTourService.stepActive('invites');
+            return false;
         };
 
-        function initCtrl() {
-        	dashboardService.loadWatchedEventsIfNecessary().then(function(commits) {
+        function refresh() {
+        	dashboardService.refresh().then(function(commits) {
         	    $scope.commits = commits;
         	});
             $scope.hasFollowupsAvailable = true;
             $scope.mightHaveFollowups = true;
         }
 
-        initCtrl();
+        var timer = setInterval(refresh, 30000);
+
+        $scope.$on("$destroy", function() {
+            clearInterval(timer);
+        });
+
+        refresh();
 
     });

@@ -4,7 +4,9 @@ angular.module('codebrag.dashboard')
 
         $scope.openReactionDetails = function (reaction) {
             if(_thisReactionOpened(reaction)) {
+                $stateParams.commentId = reaction.id;
                 $rootScope.$broadcast(events.scrollToComment, reaction.id);
+
             } else {
                 $state.transitionTo('dashboard.details', {commentId: reaction.id, commitId: reaction.commitId });
             }
