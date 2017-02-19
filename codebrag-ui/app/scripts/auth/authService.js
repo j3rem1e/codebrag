@@ -4,9 +4,11 @@ angular.module('codebrag.auth').factory('authService', function ($http, httpRequ
     var sessionApiUrl = 'rest/session',
         registrationApiUrl = 'rest/register/first-registration',
         currentUser = User.guest(),
-        authenticatedDeferred = $q.defer();
+        authenticatedDeferred = $q.defer(),
+        currentUserRequest;
 
     function setLoggedInUser(userData) {
+        currentUserRequest = null;
         currentUser.loggedInAs(userData);
         updateLoggedInUserInRootScope(currentUser, $rootScope);
         $rootScope.$broadcast(events.loggedIn);
@@ -16,6 +18,7 @@ angular.module('codebrag.auth').factory('authService', function ($http, httpRequ
     function updateLoggedInUserInRootScope(loggedInUser, $rootScope) {
         $rootScope.loggedInUser = loggedInUser;
     }
+
 
     return {
 
@@ -37,23 +40,26 @@ angular.module('codebrag.auth').factory('authService', function ($http, httpRequ
         requestCurrentUser: function () {
             if (currentUser.isAuthenticated()) {
                 return $q.when(currentUser);
+            } else if (currentUserRequest) {
+                return currentUserRequest;
+            } else {
+                currentUserRequest = $http.get(sessionApiUrl).then(function (response) {
+                    setLoggedInUser(response.data);
+                    return $q.when(currentUser);
+                });
+                return currentUserRequest;
             }
-            return $http.get(sessionApiUrl).then(function (response) {
-                setLoggedInUser(response.data);
-                return $q.when(currentUser);
-            });
 
         },
 
         isFirstRegistration: function () {
             if (currentUser.isAuthenticated()) {
                 return $q.reject();
-            } else {
-                return $http.get(registrationApiUrl).then(function (response) {
-                    var firstRegistration = response.data.firstRegistration;
-                    return $q.when(firstRegistration);
-                });
             }
+            return $http.get(registrationApiUrl).then(function (response) {
+                var firstRegistration = response.data.firstRegistration;
+                return $q.when(firstRegistration);
+            });
         },
 
         loggedInUser: currentUser,
