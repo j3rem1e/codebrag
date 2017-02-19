@@ -8,6 +8,9 @@
                         <user-avatar logged-in-user="true"></user-avatar>
                     </div>
                     <div class="info-box">
+                        <form name="userForm">
+                            <div><input name="fullname" ng-model="user.fullName" ng-required="true"/><a href="" ng-show="userForm.fullname.$dirty && userForm.fullname.$valid" ng-click="saveFullName(user)">(save)</a></div>
+                        </form>
                         <div><strong>{{user.login}}</strong></div>
                         <div><strong>{{user.email}}</strong></div>
                     </div>

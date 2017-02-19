@@ -90,6 +90,13 @@ class SQLUserDAO(val database: SQLDatabase) extends UserDAO with SQLUserSchema {
     userTokens.insertAll(added.map(t => SQLUserToken(user.id, t.token, t.expireDate)).toSeq:_*)
   }
 
+  def modifyUserFullName(id: ObjectId, newFullName: String) = db.withTransaction { implicit session =>
+    val q = for {
+      user <- users if user.id === id
+    } yield user.name
+    q.update(newFullName)
+  }
+
   def changeAuthentication(id: ObjectId, auth: Authentication) = db.withTransaction { implicit session =>
     auths.where(_.userId === id).update(toSQLAuth(id, auth))
   }

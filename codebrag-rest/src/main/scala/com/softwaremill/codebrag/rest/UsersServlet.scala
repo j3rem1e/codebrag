@@ -1,18 +1,19 @@
 package com.softwaremill.codebrag.rest
 
-import com.softwaremill.codebrag.service.user.{RegisterService, Authenticator}
+import com.softwaremill.codebrag.service.user.{Authenticator, RegisterService}
 import com.softwaremill.codebrag.service.config.CodebragConfig
 import org.bson.types.ObjectId
 import org.scalatra
 import com.softwaremill.codebrag.finders.user.UserFinder
 import com.softwaremill.codebrag.finders.user.ManagedUsersListView
-import com.softwaremill.codebrag.usecases.user.{RegisterNewUserUseCase, ModifyUserDetailsUseCase, ModifyUserDetailsForm}
+import com.softwaremill.codebrag.usecases.user.{ModifyUserDetailsForm, ModifyUserDetailsUseCase, RegisterNewUserUseCase, UpdateUserFullNameUseCase}
 
 class UsersServlet(
-  val authenticator: Authenticator,
-  userFinder: UserFinder,
-  modifyUserUseCase: ModifyUserDetailsUseCase,
-  config: CodebragConfig) extends JsonServletWithAuthentication {
+                    val authenticator: Authenticator,
+                    userFinder: UserFinder,
+                    modifyUserUseCase: ModifyUserDetailsUseCase,
+                    updateUserFullNameUseCase: UpdateUserFullNameUseCase,
+                    config: CodebragConfig) extends JsonServletWithAuthentication {
 
   get("/") {
     haltIfNotAuthenticated()
@@ -33,6 +34,21 @@ class UsersServlet(
       case Left(errors) => scalatra.BadRequest(errors)
       case _ => scalatra.Ok()
     }
+  }
+
+  put("/:userId/fullname") {
+    haltIfNotCurrentUser()
+
+    val name = extractOpt[String]("fullname").getOrElse(throw new IllegalArgumentException("parameters fullname is mandatory"))
+    updateUserFullNameUseCase.execute(user.id, name) match {
+      case Left(errors) => scalatra.BadRequest(errors)
+      case _ => scalatra.Ok()
+    }
+  }
+
+  private def haltIfNotCurrentUser() = {
+    haltIfNotAuthenticated()
+    haltWithForbiddenIf(new ObjectId(params("userId")) != user.id)
   }
 
 }

@@ -95,6 +95,7 @@ trait Beans extends ActorSystemSupport with Daos {
   lazy val generateInvitationCodeUseCase = new GenerateInvitationCodeUseCase(invitationsService, userDao)
   lazy val sendInvitationEmailUseCase = new SendInvitationEmailUseCase(invitationsService, userDao)
   lazy val modifyUserDetailsUseCase = new ModifyUserDetailsUseCase(userDao)
+  lazy val updateUserFullNameUseCase = new UpdateUserFullNameUseCase(userDao)
   lazy val updateUserBrowsingContextUseCase = new UpdateUserBrowsingContextUseCase(userRepoDetailsDao)
   lazy val addUserAliasUseCase = new AddUserAliasUseCase(userAliasDao, userDao)
   lazy val deleteUserAliasUseCase = new DeleteUserAliasUseCase(userAliasDao)

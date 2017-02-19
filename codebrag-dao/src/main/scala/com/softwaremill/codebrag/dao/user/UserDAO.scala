@@ -23,6 +23,8 @@ trait UserDAO {
 
   def modifyUser(user: User)
 
+  def modifyUserFullName(id: ObjectId, newFullName: String)
+
   def changeAuthentication(id: ObjectId, authentication: Authentication)
 
   def rememberNotifications(id: ObjectId, notifications: LastUserNotificationDispatch)
