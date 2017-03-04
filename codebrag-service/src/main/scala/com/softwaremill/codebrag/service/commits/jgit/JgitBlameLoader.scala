@@ -9,13 +9,16 @@ import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.treewalk.TreeWalk
 import org.eclipse.jgit.treewalk.filter.PathFilter
 import java.io.ByteArrayOutputStream
+
 import org.fusesource.scalate.util.IOUtil
+
 import scala.io.Source
 import scala.collection.mutable.HashMap
 import com.softwaremill.codebrag.domain.CommitInfo
 import org.joda.time.DateTime
 import com.softwaremill.codebrag.service.commits.BlameLineInfo
 import com.softwaremill.codebrag.service.commits.BlameInfo
+
 import scala.collection.mutable.ArrayBuffer
 import org.eclipse.jgit.lib.FileMode
 import org.eclipse.jgit.api.LogCommand
@@ -24,7 +27,8 @@ import com.softwaremill.codebrag.service.commits.FolderInfo
 import com.softwaremill.codebrag.service.browser.FileInfo
 import com.softwaremill.codebrag.service.commits.FolderFileInfo
 import com.softwaremill.codebrag.service.commits.FileCommitInfo
-import org.eclipse.jgit.diff.RawText
+import org.eclipse.jgit.diff.{RawText, RawTextComparator}
+
 import scala.annotation.tailrec
 import org.eclipse.jgit.revwalk.RevCommit
 
@@ -59,6 +63,8 @@ class JgitBlameLoader extends BlameLoader {
 
         blamer.setStartCommit(commitID);
         blamer.setFilePath(path);
+        blamer.setTextComparator(RawTextComparator.WS_IGNORE_ALL)
+
         val blame = blamer.call();
                 
         try {

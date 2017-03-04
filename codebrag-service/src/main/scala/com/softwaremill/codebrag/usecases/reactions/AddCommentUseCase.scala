@@ -12,6 +12,11 @@ class AddCommentUseCase(userReactionService: UserReactionService, followupServic
   type AddCommentResult = Either[String, Comment]
 
   def execute(implicit newComment: IncomingComment): AddCommentResult = {
+
+    if (newComment.lineNumber.isDefined && newComment.lineNumber.get < 0) {
+      throw new IllegalArgumentException("Invalid line number")
+    }
+
     val addedComment = userReactionService.storeComment(newComment)
     followupService.generateFollowupsForComment(addedComment)
     eventBus.publish(CommentAddedEvent(addedComment))

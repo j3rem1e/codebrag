@@ -20,10 +20,10 @@ import com.softwaremill.codebrag.service.commits.FolderInfo
 
 class BrowseService(repoCache: RepositoriesCache, commitInfoDAO: CommitInfoDAO, reactionFinder: ReactionFinder, diffService: DiffService) extends JgitBlameLoader {
   
-  def loadFile(sha: String, file: String, repoName: String): Option[Either[FileInfo, FolderInfo]] = {
+  def loadFile(fileSha: String, file: String, repoName: String): Option[Either[FileInfo, FolderInfo]] = {
     val repository = repoCache.getRepo(repoName).repository
     
-    val fileInfo = loadBlame(sha, file, repository)
+    val fileInfo = loadBlame(fileSha, file, repository)
         
     fileInfo match {
       case None => None
