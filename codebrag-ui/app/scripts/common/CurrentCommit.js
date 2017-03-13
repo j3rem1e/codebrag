@@ -121,7 +121,7 @@ codebrag.CurrentCommit.prototype = {
     },
 
     hasAtLeastReviewers: function(count) {
-        return this.info.reviewers.length >= count
+        return this.info.reviewers.length >= count;
     }
 
 };
