@@ -35,7 +35,7 @@
                     	<div class="info-line">
                     		<span class="username">{{reaction.authorName}}</span>
                     		<span class="time">{{reaction.time | relativeDate}}</span>
-                    		<span ng-show="reaction.isWaiting">&nbsp;<span class="icon-inbox"></span></span>
+                    		<span ng-show="reaction.isWaiting">&nbsp;<span class="icon-inbox" title="Not acknowledged yet"></span></span>
                     	</div>
                         <div class="author-box"><user-avatar url="reaction.authorAvatarUrl"></user-avatar></div>
                         <div class="info-box">
